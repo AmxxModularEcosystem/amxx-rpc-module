@@ -25,6 +25,8 @@ add_library(amxxrpc SHARED
   src/CoreMethods.cpp
   src/Events.cpp
   src/PawnApi.cpp
+  src/Fake.cpp
+  src/FakeMethods.cpp
   third_party/parson/parson.c
   third_party/amxx/sdk/amxxmodule.cpp)
 

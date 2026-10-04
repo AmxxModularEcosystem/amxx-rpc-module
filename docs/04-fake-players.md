@@ -8,18 +8,25 @@
 
 ## 2. Движковый слой (создание/удаление)
 
-Последовательность (подтверждено ReHLDS + yapb):
+Последовательность (ревизия после ревью — `design/13` §3; подтверждено ReHLDS + AMXX):
 
-1. `g_engfuncs.pfnCreateFakeClient(name)` → `edict_t*` (занимает реальный клиент-слот;
-   `NULL`, если слотов нет — `FR-FAKE-001`).
-2. ключи userinfo через `pfnSetClientKeyValue` (имя, модель, цвета).
-3. `MDLL_ClientConnect(ent, name, ip, reject)`.
-4. `MDLL_ClientPutInServer(ent)`.
-5. `ent->v.flags |= FL_FAKECLIENT | FL_CLIENT`.
-6. регистрация записи фейка в реестре модуля (`index → FakeRecord`).
-7. спавн (при необходимости) — движковой/`MDLL_Spawn`.
+1. Проверки: `fake_max`; имя непустое.
+2. `g_pendingAuthid = authid` — authid должен быть доступен **до** `pfnCreateFakeClient`.
+3. `g_engfuncs.pfnCreateFakeClient(name)` → `edict_t*` (занимает реальный клиент-слот;
+   `NULL`, если слотов нет — `FR-FAKE-001`). Внутри движок ставит `FL_FAKECLIENT|FL_CLIENT`,
+   userinfo и вызывает `ClientUserInfoChanged` → AMXX `C_ClientUserInfoChanged_Post`
+   регистрирует бота и читает `GETPLAYERAUTHID` (наш хук отдаёт `g_pendingAuthid`).
+4. `entIndex`; снять `g_pendingAuthid`; внести `FakeRecord` в реестр модуля (`index → FakeRecord`).
+5. `MDLL_ClientConnect(ent, name, "127.0.0.1", reject)`; reject → откат.
+6. `MDLL_ClientPutInServer(ent)` (создаёт `CBasePlayer` через `GetClassPtr`).
+7. Спавн при необходимости (`MDLL_Spawn`).
 
-Удаление — движковый `remove`/`kick`-эквивалент + освобождение записи.
+> `MDLL_ClientConnect/PutInServer` **обходят** метамод-хуки (meta_api.h) — на регистрацию в AMXX
+> не рассчитываем; регистрация идёт через `ClientUserInfoChanged` внутри `pfnCreateFakeClient`.
+> Явный `MDLL_ClientUserInfoChanged` не нужен.
+
+Удаление — `MDLL_ClientDisconnect` + удаление эдикта + освобождение записи/буфера authid
+(`design/13` §7, §10a M2).
 
 - **Удаление (детализировать в `design/13`):** корректное снятие — `MDLL_ClientDisconnect` и
   удаление эдикта; освобождение клиент-слота; снятие записи `FakeRecord` и буфера authid;

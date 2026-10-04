@@ -36,4 +36,7 @@
 #define FN_ServerActivate ServerActivate
 #define FN_AMXX_PLUGINSUNLOADING OnPluginsUnloading
 
+// Stage 3: authid substitution for fake players (design/13 §4, AR-015).
+#define FN_GetPlayerAuthId GetPlayerAuthId
+
 #endif // __MODULECONFIG_H__

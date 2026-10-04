@@ -3,6 +3,7 @@
 #include "amxxmodule.h"
 
 #include "Events.h"
+#include "FakeMethods.h"
 #include "Protocol.h"
 #include "RpcDispatch.h"
 #include "RpcRegistry.h"
@@ -230,6 +231,8 @@ bool Core_Dispatch(const std::string& method, const std::string& paramsJson,
 		HandleSubscribe(paramsJson, handle, sessionId);
 	} else if (method == "events.unsubscribe") {
 		HandleUnsubscribe(paramsJson, handle, sessionId);
+	} else if (method.compare(0, 5, "fake.") == 0) {
+		return Fake_Dispatch(method, paramsJson, handle);
 	} else {
 		return false;
 	}

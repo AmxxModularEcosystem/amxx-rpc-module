@@ -132,6 +132,7 @@ bool FlushSession(Session& s) {
 
 bool SendBytes(Session& s, const std::string& bytes) {
 	s.outbuf += bytes;
+	s.outbuf += '\n';
 	if ((long long)s.outbuf.size() > g_state.maxSessionOutBytes.load()) {
 		Log_Write(ARP_LOG_WARN, "session %llu output buffer overflow; closing",
 		          (unsigned long long)s.id);

@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "CoreMethods.h"
 #include "Events.h"
+#include "Fake.h"
 #include "Log.h"
 #include "PawnApi.h"
 #include "Protocol.h"
@@ -40,6 +41,7 @@ void Shutdown() {
 	Transport_Stop();
 	Pawn_Shutdown();
 	Events_Shutdown();
+	Fake_Shutdown();
 	Rpc_Shutdown();
 	Log_Write(ARP_LOG_INFO, "shutdown complete");
 	Log_Shutdown();
@@ -119,6 +121,7 @@ void OnAmxxAttach() {
 	Log_Init(BuildPath("amx_logsdir", "addons/amxmodx/logs", "amxxrpc.log"), ARP_LOG_INFO);
 	StartTransport();
 	Core_Init();
+	Fake_Init(g_config.fakeMax);
 	Pawn_Init();
 	Events_Init();
 	RegisterCommands();
@@ -137,6 +140,7 @@ void FN_StartFrame_Post() {
 	if (!g_initialized)
 		return;
 	Rpc_Tick();
+	Fake_Think();
 	std::string line;
 	int budget = 32;
 	while (budget-- > 0 && Log_PopLine(line))
@@ -189,6 +193,7 @@ void ServerActivate(edict_t* pEdictList, int edictCount, int clientMax) {
 	(void)clientMax;
 	if (!g_initialized)
 		return;
+	Fake_OnMapStart();
 	const char* map = gpGlobals ? g_engfuncs.pfnSzFromIndex(gpGlobals->mapname) : nullptr;
 	JSON_Value* obj = json_value_init_object();
 	json_object_set_string(json_value_get_object(obj), "map", map ? map : "");

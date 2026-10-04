@@ -29,3 +29,4 @@
 | 0002 | 2026-10-04 | Этап 0 — Bootstrap (каркас, SDK, CMake, пустой модуль) | [`0002-stage0-bootstrap.md`](0002-stage0-bootstrap.md) |
 | 0003 | 2026-10-04 | Этап 1 — Транспорт (TCP + JSON-RPC) | [`0003-transport.md`](0003-transport.md) |
 | 0004 | 2026-10-04 | Этап 2 — Реестр методов и Pawn-API | [`0004-registry-and-pawn-api.md`](0004-registry-and-pawn-api.md) |
+| 0005 | 2026-10-04 | Этап 3 — Фейк-игроки (движковый слой) | [`0005-fake-players.md`](0005-fake-players.md) |
