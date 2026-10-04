@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""E2E degradation check for the AmxxRpc Stage 4 YAPB adapter.
+"""E2E check for the AmxxRpc YAPB adapter (adaptive: YAPB present or absent).
 
-Runs against a server WITHOUT YAPB installed: bot.available must report
-{available:false} and every other bot.* method must fail with -32002
-(service unavailable). rpc.methods must still advertise the bot.* methods.
+- If YAPB is absent: bot.available -> {available:false}; every other bot.* -> -32002.
+- If YAPB is present: bot.available -> {available:true,...}; bot.list works;
+  set/query on a bot index returns ok. (bot.add is queued; a new index is not
+  returned synchronously.)
 
 Usage:
     python3 scripts/e2e_bot.py [host] [port] [token]
@@ -40,10 +41,7 @@ def call(sock, method, params, req_id):
     sock.sendall((json.dumps(req, separators=(",", ":")) + "\n").encode())
     buf = b""
     while not buf.endswith(b"\n"):
-        try:
-            chunk = sock.recv(4096)
-        except socket.timeout:
-            break
+        chunk = sock.recv(4096)
         if not chunk:
             break
         buf += chunk
@@ -66,27 +64,48 @@ def main():
         print("connection error: %s" % exc)
         return 1
 
-    auth = call(sock, "rpc.auth", {"token": TOKEN}, 1)
+    rid = 0
+
+    def nxt():
+        nonlocal rid
+        rid += 1
+        return rid
+
+    auth = call(sock, "rpc.auth", {"token": TOKEN}, nxt())
     check((auth or {}).get("result", {}).get("ok") is True, "rpc.auth -> ok")
 
-    available = call(sock, "bot.available", None, 2)
-    result = (available or {}).get("result", {})
-    check(result.get("available") is False, "bot.available -> {available:false}")
+    available = (call(sock, "bot.available", None, nxt()) or {}).get("result", {})
+    is_avail = available.get("available") is True
 
-    check(error_code(call(sock, "bot.add", {"name": "YapbBot"}, 3)) == -32002,
-          "bot.add -> -32002")
-    check(error_code(call(sock, "bot.goal", {"index": 1, "origin": [0, 0, 0]}, 4)) == -32002,
-          "bot.goal -> -32002")
-    check(error_code(call(sock, "bot.look", {"index": 1, "origin": [0, 0, 0]}, 5)) == -32002,
-          "bot.look -> -32002")
-    check(error_code(call(sock, "bot.freeze", {"index": 1, "frozen": True}, 6)) == -32002,
-          "bot.freeze -> -32002")
-    check(error_code(call(sock, "bot.status", {"index": 1}, 7)) == -32002,
-          "bot.status -> -32002")
-    check(error_code(call(sock, "bot.list", None, 8)) == -32002,
-          "bot.list -> -32002")
+    if is_avail:
+        print("info - YAPB available (version=%s)" % available.get("version"))
+        listing = (call(sock, "bot.list", None, nxt()) or {}).get("result")
+        check(isinstance(listing, list), "bot.list -> array")
+        indices = [b.get("index") for b in listing or [] if isinstance(b, dict)]
+        check((call(sock, "bot.add", {"name": "E2EYapb"}, nxt()) or {}).get("result", {}).get("queued") is True,
+              "bot.add -> {queued:true}")
+        if indices:
+            i = indices[0]
+            check((call(sock, "bot.status", {"index": i}, nxt()) or {}).get("result", {}).get("index") == i,
+                  "bot.status -> index")
+            check((call(sock, "bot.look", {"index": i, "origin": [0, 0, 0]}, nxt()) or {}).get("result", {}).get("ok") is True,
+                  "bot.look -> ok")
+            check((call(sock, "bot.freeze", {"index": i, "frozen": True}, nxt()) or {}).get("result", {}).get("ok") is True,
+                  "bot.freeze -> ok")
+        else:
+            print("info - no bots present; skipping per-bot checks")
+    else:
+        check(available.get("available") is False, "bot.available -> {available:false}")
+        for name, params in (("bot.add", {"name": "YapbBot"}),
+                             ("bot.goal", {"index": 1, "origin": [0, 0, 0]}),
+                             ("bot.look", {"index": 1, "origin": [0, 0, 0]}),
+                             ("bot.freeze", {"index": 1, "frozen": True}),
+                             ("bot.status", {"index": 1}),
+                             ("bot.list", None)):
+            check(error_code(call(sock, name, params, nxt())) == -32002,
+                  "%s -> -32002" % name)
 
-    methods = call(sock, "rpc.methods", None, 9)
+    methods = call(sock, "rpc.methods", None, nxt())
     names = {m.get("name") for m in (methods or {}).get("result", [])}
     for name in ("bot.available", "bot.add", "bot.list", "bot.goal",
                  "bot.look", "bot.freeze", "bot.status"):

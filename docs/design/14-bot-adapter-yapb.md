@@ -85,5 +85,6 @@
 | M8 | Владение библиотекой при shutdown | `Bot_Init` помнит, грузил ли сам; `Bot_Shutdown` выгружает только self-loaded. |
 | M9 | Гигиена интерфейса | Не вызывать виртуальный деструктор/`delete`; в интерфейсе нет STL; `float*` копировать сразу. |
 | M10 | Путь по умолчанию | `yapb_path` (уже есть); default — от modname. |
+| M11 | **ABI `IBotModule` (C++ vtable) при кросс-сборке** | Проверено e2e: вызов YAPB (MSVC) из модуля, собранного **zig/MinGW**, → **краш** на `bot.add`; MSVC-сборка работает (`bot.available/add/list/goal/look/freeze/status`). Вывод: для окружений с YAPB — только MSVC-сборка; zig — лишь без YAPB. |
 
 Уточнения §4: `bot.status` использует `GetBotWeapon`/`GetBotTask` (обёртки обязательны); `bot.available → {available, version?}`.

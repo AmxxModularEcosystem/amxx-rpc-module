@@ -63,11 +63,14 @@ if idx is not None:
 check((rpc(s, "fake.get", {"index": 1}, 9) or {}).get("error", {}).get("code") == -32602,
       "fake.get real player -> -32602")
 
-print("== bot adapter (no YAPB expected) ==")
+print("== bot adapter (adaptive) ==")
 avail = (rpc(s, "bot.available", None, 10) or {}).get("result", {})
-check(avail.get("available") is False, "bot.available -> {available:false}")
-check((rpc(s, "bot.add", {"name": "x"}, 11) or {}).get("error", {}).get("code") == -32002,
-      "bot.add -> -32002")
+if avail.get("available") is True:
+    check(isinstance((rpc(s, "bot.list", None, 11) or {}).get("result"), list), "bot.list -> array")
+else:
+    check(avail.get("available") is False, "bot.available -> {available:false}")
+    check((rpc(s, "bot.add", {"name": "x"}, 11) or {}).get("error", {}).get("code") == -32002,
+          "bot.add -> -32002")
 s.close()
 
 print()
