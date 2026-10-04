@@ -93,3 +93,12 @@ add_executable(bot_test
 target_include_directories(bot_test PRIVATE src third_party/yapb)
 target_compile_definitions(bot_test PRIVATE HAVE_STDINT_H NOMINMAX)
 target_link_libraries(bot_test PRIVATE Threads::Threads)
+
+# Install: runtime layout for a CS 1.6 server (addons/amxmodx/...).
+install(TARGETS amxxrpc
+  LIBRARY DESTINATION addons/amxmodx/modules
+  RUNTIME DESTINATION addons/amxmodx/modules)
+install(DIRECTORY include/AmxxRpc
+  DESTINATION addons/amxmodx/scripting/include)
+install(FILES configs/amxxrpc.cfg
+  DESTINATION addons/amxmodx/configs)

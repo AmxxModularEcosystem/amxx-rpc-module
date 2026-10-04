@@ -4,15 +4,14 @@
 
 | Зависимость | Где | Назначение |
 |---|---|---|
-| AMXX module SDK | `sdk/` (копия `public/sdk/amxxmodule.{h,cpp}`, `moduleconfig.in.h`) | ABI модуля; **не редактируется** |
-| `public/amxmodx_version.h` | `sdk/` | `AMXX_VERSION` для `MODULE_VERSION` |
-| `public/IGameConfigs.h`, `public/ITextParsers.h`, AMTL | `sdk/` | транзитивные include из `amxxmodule.h` |
-| Metamod HL1 headers | `sdk/metamod/` | `meta_api.h`, `osdep.h`, `engine_t.h`, `dllapi.h`, … (из-за `USE_METAMOD`) |
-| HLSDK headers | `sdk/hlsdk/` | `common/`, `dlls/`, `engine/`, `game_shared/`, `public/` |
-| JSON-библиотека | `third_party/` | парсинг/сериализация JSON-RPC; кандидат — `parson` (MIT) |
+| AMXX module SDK | `third_party/amxx/` (`public/sdk/amxxmodule.{h,cpp}`, `moduleconfig.in.h`) | ABI модуля; **не редактируется** |
+| `amxmodx_version.h`, `IGameConfigs.h`, `ITextParsers.h`, AMTL | `third_party/amxx/` | include из `amxxmodule.h` |
+| Metamod HL1 headers | `third_party/metamod/` | `meta_api.h`, `osdep.h`, `engine_t.h`, `dllapi.h`, … (из-за `USE_METAMOD`) |
+| HLSDK headers | `third_party/hlsdk/` | `common/ dlls/ engine/ game_shared/ public/ pm_shared/`; `dlls/extdll.h` **пропатчен** (min/max) |
+| **parson** `1.2.1` (MIT) | `third_party/parson/` | парсинг/сериализация JSON-RPC (Этап 1) |
+| YAPB `IBotModule` header | `third_party/yapb/module.h` | интерфейс опционального адаптера (Этап 4) |
 
-> Точный список/версии фиксируются в дизайне сборки. SDK вендорится копией (наиболее
-> воспроизводимо) — либо submodule/FetchContent (OQ-9).
+> Версии/коммиты — [`third_party/VERSIONS.md`](../third_party/VERSIONS.md).
 
 ## 2. Runtime
 
