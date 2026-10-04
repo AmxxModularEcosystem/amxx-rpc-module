@@ -27,6 +27,8 @@ add_library(amxxrpc SHARED
   src/PawnApi.cpp
   src/Fake.cpp
   src/FakeMethods.cpp
+  src/Bot.cpp
+  src/BotMethods.cpp
   third_party/parson/parson.c
   third_party/amxx/sdk/amxxmodule.cpp)
 
@@ -40,7 +42,8 @@ target_include_directories(amxxrpc PRIVATE
   third_party/hlsdk/engine
   third_party/hlsdk/game_shared
   third_party/hlsdk/public
-  third_party/parson)
+  third_party/parson
+  third_party/yapb)
 
 target_compile_definitions(amxxrpc PRIVATE HAVE_STDINT_H NOMINMAX)
 
@@ -82,3 +85,11 @@ add_executable(registry_test
 target_include_directories(registry_test PRIVATE src third_party/parson)
 target_compile_definitions(registry_test PRIVATE HAVE_STDINT_H NOMINMAX)
 target_link_libraries(registry_test PRIVATE Threads::Threads)
+
+# Off-line bot adapter unit test (no AMXX SDK; mock IBotApi seam).
+add_executable(bot_test
+  tests/bot_test.cpp
+  src/Bot.cpp)
+target_include_directories(bot_test PRIVATE src third_party/yapb)
+target_compile_definitions(bot_test PRIVATE HAVE_STDINT_H NOMINMAX)
+target_link_libraries(bot_test PRIVATE Threads::Threads)

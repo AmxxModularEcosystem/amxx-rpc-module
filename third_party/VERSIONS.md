@@ -6,6 +6,7 @@
 | `third_party/metamod/` | https://github.com/alliedmodders/metamod-hl1 (`metamod/`) | `18a10db686702e8ae9e0fcb5b5febf8881dc9c2d` | GPL (see `third_party/metamod/GPL.txt` if present) |
 | `third_party/hlsdk/` | https://github.com/alliedmodders/hlsdk (`common/ dlls/ engine/ game_shared/ public/ pm_shared/`) | `a0edb7792a96998d349325bebab8ea41ec5cb239` | HLSDK license (`third_party/hlsdk/LICENSE`) |
 | `third_party/parson/` | https://github.com/kgabis/parson | `1.2.1` (release tag) | MIT (`third_party/parson/LICENSE`) |
+| `third_party/yapb/module.h` | https://github.com/yapb/yapb (`inc/module.h`) | `ac7e4e75b36320353bbbc9999950b031dba3d12a` | Unlicense (SPDX header in file) |
 
 ## Patches
 

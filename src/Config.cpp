@@ -54,6 +54,12 @@ bool ParseLogLevel(const std::string& s, LogLevel& out) {
 	return false;
 }
 
+bool ParseBool(const std::string& s, bool& out) {
+	if (s == "1" || s == "true" || s == "yes" || s == "on")  { out = true;  return true; }
+	if (s == "0" || s == "false" || s == "no" || s == "off") { out = false; return true; }
+	return false;
+}
+
 bool IsLoopbackHost(const std::string& host) {
 	return host == "127.0.0.1" || host == "localhost" || host == "::1";
 }
@@ -134,6 +140,11 @@ bool Config_Load(const std::string& path, Config& out, std::string& error) {
 			out.fakeMax = static_cast<int>(number);
 		} else if (key == "yapb_path") {
 			out.yapbPath = value;
+		} else if (key == "yapb_self_load") {
+			if (!ParseBool(value, out.yapbSelfLoad)) {
+				error = "line " + std::to_string(lineNo) + ": invalid yapb_self_load (true/false)";
+				return false;
+			}
 		} else if (key == "log_level") {
 			if (!ParseLogLevel(value, out.logLevel)) {
 				error = "line " + std::to_string(lineNo) + ": invalid log_level (error/warn/info/debug)";

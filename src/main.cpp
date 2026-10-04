@@ -1,5 +1,6 @@
 #include "amxxmodule.h"
 
+#include "Bot.h"
 #include "Config.h"
 #include "CoreMethods.h"
 #include "Events.h"
@@ -34,6 +35,20 @@ std::string BuildPath(const char* localInfoKey, const char* fallback, const char
 	return std::string(buffer);
 }
 
+// Default YAPB core path (design/14 §9 M10); used only for the optional
+// self-load. Detection itself is by module basename.
+std::string YapbPath() {
+	if (!g_config.yapbPath.empty())
+		return g_config.yapbPath;
+	char buffer[512];
+#if defined(_WIN32)
+	MF_BuildPathnameR(buffer, sizeof(buffer), "addons/yapb/bin/yapb.dll");
+#else
+	MF_BuildPathnameR(buffer, sizeof(buffer), "addons/yapb/bin/yapb.so");
+#endif
+	return std::string(buffer);
+}
+
 void Shutdown() {
 	std::lock_guard<std::mutex> lock(g_lifecycleMutex);
 	if (!g_initialized)
@@ -42,6 +57,7 @@ void Shutdown() {
 	Pawn_Shutdown();
 	Events_Shutdown();
 	Fake_Shutdown();
+	Bot_Shutdown();
 	Rpc_Shutdown();
 	Log_Write(ARP_LOG_INFO, "shutdown complete");
 	Log_Shutdown();
@@ -66,6 +82,7 @@ void StartTransport() {
 
 void CmdStatus() {
 	MF_Log("[AmxxRpc] status: %s", Transport_StatusLine().c_str());
+	MF_Log("[AmxxRpc] yapb: %s", Bot_Available() ? "available" : "not available");
 }
 
 void CmdClients() {
@@ -122,6 +139,9 @@ void OnAmxxAttach() {
 	StartTransport();
 	Core_Init();
 	Fake_Init(g_config.fakeMax);
+	Bot_Init(YapbPath(), g_config.yapbSelfLoad);
+	if (!Bot_Available())
+		Log_Write(ARP_LOG_INFO, "YAPB not available; bot.* disabled");
 	Pawn_Init();
 	Events_Init();
 	RegisterCommands();
@@ -194,6 +214,7 @@ void ServerActivate(edict_t* pEdictList, int edictCount, int clientMax) {
 	if (!g_initialized)
 		return;
 	Fake_OnMapStart();
+	Bot_OnMapStart();
 	const char* map = gpGlobals ? g_engfuncs.pfnSzFromIndex(gpGlobals->mapname) : nullptr;
 	JSON_Value* obj = json_value_init_object();
 	json_object_set_string(json_value_get_object(obj), "map", map ? map : "");

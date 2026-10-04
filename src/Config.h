@@ -23,6 +23,7 @@ struct Config {
 	int drainBudget = 64;
 	int fakeMax = 8;
 	std::string yapbPath;
+	bool yapbSelfLoad = false; // off by default; loading YAPB as a plain lib is risky (design/14 §9 B2)
 	LogLevel logLevel = ARP_LOG_INFO;
 };
 
