@@ -178,7 +178,7 @@ bool HandleAuth(Session& s, const std::string& line) {
 	ProtocolParseResult pr = Protocol_ParseRequest(
 	    line, (size_t)g_state.maxMessageBytes.load(), ARP_MAX_JSON_DEPTH);
 	if (!pr.ok) {
-		SendError(s, "null", pr.errorCode, pr.errorMessage);
+		SendError(s, pr.request.rawId.empty() ? "null" : pr.request.rawId.c_str(), pr.errorCode, pr.errorMessage);
 		return false;
 	}
 	if (pr.request.method != "rpc.auth") {
@@ -221,7 +221,7 @@ bool ProcessLine(Session& s, const std::string& line) {
 			SendError(s, "null", RPC_INVALID_REQUEST, pr.errorMessage);
 			return true; // batch rejected, keep the connection
 		}
-		SendError(s, "null", pr.errorCode, pr.errorMessage);
+		SendError(s, pr.request.rawId.empty() ? "null" : pr.request.rawId.c_str(), pr.errorCode, pr.errorMessage);
 		return false; // parse/invalid request -> close
 	}
 	if (pr.request.method == "rpc.auth")

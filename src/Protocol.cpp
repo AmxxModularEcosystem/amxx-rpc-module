@@ -233,6 +233,19 @@ ProtocolParseResult Protocol_ParseRequest(const std::string& text,
 	}
 
 	JSON_Object* obj = json_value_get_object(root);
+
+	JSON_Value* idValue = json_object_get_value(obj, "id");
+	bool isNotification = (idValue == nullptr) ||
+	                      (json_value_get_type(idValue) == JSONNull);
+
+	std::string rawId;
+	bool hasId = false;
+	Protocol_ExtractRawId(text, rawId, hasId);
+
+	res.request.isNotification = isNotification;
+	if (!isNotification && hasId)
+		res.request.rawId = rawId;
+
 	const char* jsonrpc = json_object_get_string(obj, "jsonrpc");
 	if (!jsonrpc || std::strcmp(jsonrpc, "2.0") != 0) {
 		res.errorCode = RPC_INVALID_REQUEST;
@@ -249,37 +262,28 @@ ProtocolParseResult Protocol_ParseRequest(const std::string& text,
 		return res;
 	}
 
-	JSON_Value* idValue = json_object_get_value(obj, "id");
-	bool isNotification = (idValue == nullptr) ||
-	                      (json_value_get_type(idValue) == JSONNull);
-
 	std::string paramsJson;
 	JSON_Value* paramsValue = json_object_get_value(obj, "params");
 	if (paramsValue) {
 		JSON_Value_Type paramsType = json_value_get_type(paramsValue);
-		if (paramsType != JSONObject && paramsType != JSONArray) {
+		if (paramsType == JSONObject || paramsType == JSONArray) {
+			char* serialized = json_serialize_to_string(paramsValue);
+			if (serialized) {
+				paramsJson = serialized;
+				json_free_serialized_string(serialized);
+			}
+		} else if (paramsType != JSONNull) {
+			// Protocol: `params: null` == no params; other scalars are rejected.
 			res.errorCode = RPC_INVALID_PARAMS;
 			res.errorMessage = "params must be object or array";
 			json_value_free(root);
 			return res;
 		}
-		char* serialized = json_serialize_to_string(paramsValue);
-		if (serialized) {
-			paramsJson = serialized;
-			json_free_serialized_string(serialized);
-		}
 	}
-
-	std::string rawId;
-	bool hasId = false;
-	Protocol_ExtractRawId(text, rawId, hasId);
 
 	res.ok = true;
 	res.request.method = method;
 	res.request.paramsJson = paramsJson;
-	res.request.isNotification = isNotification;
-	if (!isNotification && hasId)
-		res.request.rawId = rawId;
 
 	json_value_free(root);
 	return res;
