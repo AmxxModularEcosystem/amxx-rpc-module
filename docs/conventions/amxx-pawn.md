@@ -21,7 +21,7 @@
 
 ## 3. Публичный инклюд
 
-- Одна папка `include/AmxxRpc/`, основной — `Core.inc`; подключение `#include <AmxxRpc/Core>`.
+- Публичный инклюд — `include/AmxxRpc.inc` (один файл); подключение `#include <AmxxRpc>`.
 - Только объявления и `stock`; версия — `#define ARP_VERSION "x.y.z"`.
 
 ## 4. Обработчики методов (продуктовая конвенция)

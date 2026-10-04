@@ -5,7 +5,7 @@
 - Корневой `CMakeLists.txt`; исходники — `src/`; вендоренный SDK — `sdk/`
   (`public/sdk/*`, `public/amxmodx_version.h`, `public/IGameConfigs.h`, `public/ITextParsers.h`,
   AMTL), Metamod/HLSDK-заголовки — `sdk/metamod/`, `sdk/hlsdk/` (нужны из-за `USE_METAMOD`).
-- Публичный инклюд — `include/AmxxRpc/Core.inc`; пример плагина — `examples/` (`.sma`).
+- Публичный инклюд — `include/AmxxRpc.inc`; пример плагина — `examples/` (`.sma`).
 
 ## 2. Компиляция/линковка (подтверждено prior art)
 
@@ -22,7 +22,7 @@
 ```
 addons/amxmodx/modules/amxxrpc_amxx.dll        (Win)
 addons/amxmodx/modules/amxxrpc_amxx_i386.so    (Linux)
-addons/amxmodx/scripting/include/AmxxRpc/Core.inc
+addons/amxmodx/scripting/include/AmxxRpc.inc
 addons/amxmodx/configs/amxxrpc.cfg              (пример)
 ```
 - Активация: строка `amxxrpc` в `addons/amxmodx/configs/modules.ini`.
@@ -40,7 +40,7 @@ addons/amxmodx/configs/amxxrpc.cfg              (пример)
 - Загрузка модуля в HLDS без ошибок в логе.
 - Smoke JSON-RPC по TCP: `rpc.auth` + `rpc.ping`/`rpc.version` → осмысленный ответ.
 - `amxxpc 1.10.5428` для примера-плагина `examples/AmxxRpcExample.sma` (он включает
-  `include/AmxxRpc/Core.inc`) — **0/0**. Прямая компиляция `.inc` не приводится к 0/0
+  `include/AmxxRpc.inc`) — **0/0**. Прямая компиляция `.inc` не приводится к 0/0
   (`error 013: no entry point`) и проверкой не является.
 - **Env-ловушка (Linux/WSL):** `amxxpc` — 32-битный и **не читает файлы на DrvFs/9p-монтированиях
   (`/mnt/*`)**; при нечитаемом исходнике падает `std::bad_alloc` (а не печатает диагностику).

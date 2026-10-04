@@ -25,7 +25,7 @@ AmxxEasyHttp, addtofullpack_manager, fastdl_mm. Ревью эмпирическ�
 | 2.8 | **Linux (GCC, `-m32`):** `-static-libstdc++ -static-libgcc`, `-ffunction-sections -fdata-sections`, `-Wl,--gc-sections`, `-fcf-protection=none` (GCC≥8.1); линковка `dl m pthread`. | Старый libstdc++/glibc; CET. |
 | 2.9 | **`hlsdk/extdll.h` патчится** (закомментировать макросы `min`/`max` на non-Windows). Патч фиксируется в `third_party/patches/` (или вендорится уже пропатченный форк). | **BLOCKER ревью:** непатченный `extdll.h` ломает Linux-сборку (`min`/`max` × libstdc++); `NOMINMAX` не помогает. Канон — AmxxEasyHttp (закомментировано). «SDK не редактируется» относится к `amxxmodule.*`, не к этому патчу. |
 | 2.10 | Имена: `amxxrpc_amxx.dll` / `amxxrpc_amxx_i386.so`; `PREFIX ""`, `OUTPUT_NAME` по платформе. | Лоадер AMXX (`docs/06` §3). |
-| 2.11 | CMake-структура: `src/`, `include/AmxxRpc/Core.inc`, `examples/`, `third_party/`, корневой `CMakeLists.txt`, `cmake/`. | Единообразие. |
+| 2.11 | CMake-структура: `src/`, `include/AmxxRpc.inc`, `examples/`, `third_party/`, корневой `CMakeLists.txt`, `cmake/`. | Единообразие. |
 | 2.12 | CI: GitHub Actions — Linux (i386 multilib + `libc6-dev-i386`) + Windows (`-A Win32`); zip с layout `addons/amxmodx/...`. | `docs/06` §4. |
 
 ## 3. Vendoring: upstream-источники (fix M1)

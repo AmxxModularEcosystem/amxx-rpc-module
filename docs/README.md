@@ -27,6 +27,7 @@
 | [`04-fake-players.md`](04-fake-players.md) | Фейк-игроки: движковый слой, подмена authid, usercmd-слой, опциональный YAPB-адаптер |
 | [`05-config-and-commands.md`](05-config-and-commands.md) | Конфиг модуля, серверные команды, логирование |
 | [`06-build-and-deploy.md`](06-build-and-deploy.md) | CMake win/linux, CI, раскладка артефактов, интеграция с amxb-бандлом |
+| [`07-jsonrpc-protocol.md`](07-jsonrpc-protocol.md) | **Внешний контракт JSON-RPC** (транспорт, auth, каталог методов, события) — для агента `amxb` |
 | [`08-open-questions.md`](08-open-questions.md) | Допущения, открытые вопросы, риски, §«Принятые решения» |
 | [`09-dependencies.md`](09-dependencies.md) | Инвентарь зависимостей (SDK/compile/runtime/optional), политика версий |
 | [`design/`](design/README.md) | **Дизайн-документы** подсистем |

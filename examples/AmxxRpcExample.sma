@@ -1,5 +1,5 @@
 #include <amxmodx>
-#include <AmxxRpc/Core>
+#include <AmxxRpc>
 
 public stock const PluginName[]    = "AmxxRpc Example";
 public stock const PluginVersion[] = ARP_VERSION;

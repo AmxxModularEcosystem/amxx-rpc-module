@@ -98,7 +98,7 @@ target_link_libraries(bot_test PRIVATE Threads::Threads)
 install(TARGETS amxxrpc
   LIBRARY DESTINATION addons/amxmodx/modules
   RUNTIME DESTINATION addons/amxmodx/modules)
-install(DIRECTORY include/AmxxRpc
+install(FILES include/AmxxRpc.inc
   DESTINATION addons/amxmodx/scripting/include)
 install(FILES configs/amxxrpc.cfg
   DESTINATION addons/amxmodx/configs)

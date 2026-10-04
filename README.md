@@ -28,7 +28,7 @@ cmake -S . -B build-lin -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_BUILD_TYPE=Release
 cmake --build build-lin -j
 
 # Установка раскладки addons/amxmodx/... в <prefix>:
-cmake --install build-win --prefix dist     # → dist/addons/amxmodx/{modules,scripting/include/AmxxRpc,configs}
+cmake --install build-win --prefix dist     # → dist/addons/amxmodx/{modules,scripting/include,configs}
 ```
 
 Артефакты: `amxxrpc_amxx.dll` (Win) / `amxxrpc_amxx_i386.so` (Linux 32-bit).
@@ -47,8 +47,8 @@ cmake --install build-win --prefix dist     # → dist/addons/amxmodx/{modules,s
 
 ## Инклюд
 
-`include/AmxxRpc/Core.inc` → `addons/amxmodx/scripting/include/AmxxRpc/Core.inc`.
-Подключение: `#include <AmxxRpc/Core>`. Пример — [`examples/AmxxRpcExample.sma`](examples/AmxxRpcExample.sma).
+`include/AmxxRpc.inc` → `addons/amxmodx/scripting/include/AmxxRpc.inc`.
+Подключение: `#include <AmxxRpc>`. Пример — [`examples/AmxxRpcExample.sma`](examples/AmxxRpcExample.sma).
 
 ## Проверка
 

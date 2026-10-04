@@ -49,7 +49,7 @@
   **не полагаться только на код возврата** (см. §8).
 - `paramsJson` — JSON-строка params (или `"null"`); `method`/`id` не передаются.
 
-## 5. Pawn-API (`include/AmxxRpc/Core.inc`)
+## 5. Pawn-API (`include/AmxxRpc.inc`)
 
 ```pawn
 native bool:ARpc_Core_RegisterMethod(const name[], const callback[], const description[] = "");

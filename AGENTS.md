@@ -12,7 +12,7 @@
   MCP-tools и MCP-протокол живут отдельно, в `amxb` (не в этом репозитории). Модуль
   предоставляет (а) встроенное ядро методов и (б) **нативы регистрации методов** для
   Pawn-плагинов; внешний мост мапит MCP-tools на RPC-методы.
-- Парная поставка: сам модуль + публичный Pawn-инклюд `include/AmxxRpc/Core.inc`
+- Парная поставка: сам модуль + публичный Pawn-инклюд `include/AmxxRpc.inc`
   (нативы регистрации) + пример плагина.
 - Зависимости времени исполнения опциональны там, где это возможно (YAPB — только для
   навигации/ИИ ботов); см. `docs/09-dependencies.md`.
@@ -34,6 +34,8 @@
 ### Язык
 
 - Документация и комментарии — **на русском**. Промпты субагентам — на английском.
+- `docs/07-jsonrpc-protocol.md` — **внешний wire-контракт** JSON-RPC (для агента `amxb`); менять
+  его — только с обновлением версии `ARP_PROTO_VERSION` и этого дока.
 - C++-код: имена — английские; комментарии — по необходимости русские/английские (не дублировать).
 
 ## Именование кода
@@ -56,14 +58,14 @@
 - Компиляционное время константы — `ARP_*` (`ARP_VERSION`).
 - Теги типов — `T_ARpc_<Name>` + `Invalid_ARpc_<Name>` (см. `docs/conventions/amxx-pawn.md`).
 - Команды — `amxxrpc_*`.
-- Публичный инклюд — одна папка `include/AmxxRpc/`, основной — `Core.inc`.
+- Публичный инклюд — один файл `include/AmxxRpc.inc`.
 
 ## Сборка
 
 - Сборка модуля — **CMake**, кроссплатформенно **Windows (MSVC, Win32) + Linux
   (`-m32`, multilib)**. См. `docs/design/` (build) и `docs/conventions/cpp-module.md`.
 - Артефакты: `amxxrpc_amxx.dll` (Win) / `amxxrpc_amxx_i386.so` (Linux 32-bit),
-  раскладка `addons/amxmodx/modules/`; инклюд — `addons/amxmodx/scripting/include/AmxxRpc/`.
+  раскладка `addons/amxmodx/modules/`; инклюд — `addons/amxmodx/scripting/include/AmxxRpc.inc`.
 - Активация модуля — строка `amxxrpc` в `addons/amxmodx/configs/modules.ini`.
 - `USE_METAMOD` в `moduleconfig.h` — **обязателен** (нужны хуки движка: `StartFrame`,
   `GetPlayerAuthId`, `CreateFakeClient`). Следствие: тянем заголовки Metamod/HLSDK.
