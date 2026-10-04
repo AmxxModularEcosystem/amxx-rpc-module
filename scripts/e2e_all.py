@@ -33,10 +33,7 @@ def rpc(s, method, params, req_id):
     s.sendall((json.dumps(req, separators=(",", ":")) + "\n").encode())
     buf = b""
     while not buf.endswith(b"\n"):
-        try:
-            chunk = s.recv(4096)
-        except socket.timeout:
-            break
+        chunk = s.recv(4096)
         if not chunk:
             break
         buf += chunk

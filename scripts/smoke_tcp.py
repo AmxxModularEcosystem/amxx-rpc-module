@@ -48,10 +48,7 @@ def send_obj(sock, obj):
 def recv_line(sock):
     buf = b""
     while not buf.endswith(b"\n"):
-        try:
-            chunk = sock.recv(4096)
-        except socket.timeout:
-            break
+        chunk = sock.recv(4096)
         if not chunk:
             break
         buf += chunk

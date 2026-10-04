@@ -350,6 +350,7 @@ void DrainOutbox(std::map<uint64_t, Session>& sessions) {
 		auto it = sessions.find(out.sessionId);
 		if (it != sessions.end()) {
 			it->second.outbuf += out.bytes;
+			it->second.outbuf += '\n';
 			if ((long long)it->second.outbuf.size() > g_state.maxSessionOutBytes.load()) {
 				Log_Write(ARP_LOG_WARN, "session %llu output overflow; closing",
 				          (unsigned long long)out.sessionId);
