@@ -2,6 +2,8 @@ name: build
 
 on:
   push:
+    branches: ["**"]
+    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
@@ -16,15 +18,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib libc6-dev-i386 cmake
       - name: Configure
-        run: cmake -S . -B build-lin -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_BUILD_TYPE=Release
       - name: Build
-        run: cmake --build build-lin -j
-      - name: Package artifact
+        run: cmake --build build -j
+      - name: Unit tests
         run: |
-          mkdir -p dist/addons/amxmodx/modules dist/addons/amxmodx/scripting/include
-          cp build-lin/amxxrpc_amxx_i386.so dist/addons/amxmodx/modules/
-          cp -r include/AmxxRpc dist/addons/amxmodx/scripting/include/
-          (cd dist && zip -r ../amxxrpc-linux.zip .)
+          ./build/protocol_test
+          ./build/registry_test
+          ./build/bot_test
+      - name: Install runtime layout
+        run: cmake --install build --prefix dist
+      - name: Package
+        run: (cd dist && zip -r ../amxxrpc-linux.zip .)
       - uses: actions/upload-artifact@v4
         with:
           name: amxxrpc-linux
@@ -35,17 +40,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        run: cmake -S . -B build-win -A Win32 -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -A Win32 -DCMAKE_BUILD_TYPE=Release
       - name: Build
-        run: cmake --build build-win --config Release
-      - name: Package artifact
-        shell: pwsh
+        run: cmake --build build --config Release
+      - name: Unit tests
         run: |
-          New-Item -ItemType Directory -Force -Path dist/addons/amxmodx/modules, dist/addons/amxmodx/scripting/include | Out-Null
-          Copy-Item build-win/Release/amxxrpc_amxx.dll dist/addons/amxmodx/modules/
-          Copy-Item -Recurse include/AmxxRpc dist/addons/amxmodx/scripting/include/
-          Compress-Archive -Path dist/* -DestinationPath amxxrpc-windows.zip
+          build\Release\protocol_test.exe
+          build\Release\registry_test.exe
+          build\Release\bot_test.exe
+      - name: Install runtime layout
+        run: cmake --install build --config Release --prefix dist
+      - name: Package
+        shell: pwsh
+        run: Compress-Archive -Path dist/* -DestinationPath amxxrpc-windows.zip
       - uses: actions/upload-artifact@v4
         with:
           name: amxxrpc-windows
           path: amxxrpc-windows.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Gather release assets
+        run: |
+          mkdir -p release
+          cp artifacts/amxxrpc-linux/amxxrpc-linux.zip release/
+          cp artifacts/amxxrpc-windows/amxxrpc-windows.zip release/
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release/*.zip
+          generate_release_notes: true
