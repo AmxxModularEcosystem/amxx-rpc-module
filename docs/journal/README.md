@@ -28,3 +28,4 @@
 | 0001 | 2026-10-04 | Ресёрч экосистемы + стратегическое планирование | [`0001-research-and-strategy.md`](0001-research-and-strategy.md) |
 | 0002 | 2026-10-04 | Этап 0 — Bootstrap (каркас, SDK, CMake, пустой модуль) | [`0002-stage0-bootstrap.md`](0002-stage0-bootstrap.md) |
 | 0003 | 2026-10-04 | Этап 1 — Транспорт (TCP + JSON-RPC) | [`0003-transport.md`](0003-transport.md) |
+| 0004 | 2026-10-04 | Этап 2 — Реестр методов и Pawn-API | [`0004-registry-and-pawn-api.md`](0004-registry-and-pawn-api.md) |

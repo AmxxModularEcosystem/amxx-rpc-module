@@ -2,7 +2,7 @@
 #define __MODULECONFIG_H__
 
 #define MODULE_NAME "AmxxRpc"
-#define MODULE_VERSION "0.0.1"
+#define MODULE_VERSION "0.1.0"
 #define MODULE_AUTHOR "AmxxRpc"
 #define MODULE_URL "https://example.invalid/amxxrpc"
 #define MODULE_LOGTAG "AmxxRpc"
@@ -29,5 +29,11 @@
 
 // Stage 1: idempotent shutdown also on Metamod detach (design/11 §6).
 #define FN_META_DETACH OnMetaDetach
+
+// Stage 2: event sources (design/12 §7) and Pawn cleanup on global unload (§8).
+#define FN_ClientConnect ClientConnect
+#define FN_ClientDisconnect ClientDisconnect
+#define FN_ServerActivate ServerActivate
+#define FN_AMXX_PLUGINSUNLOADING OnPluginsUnloading
 
 #endif // __MODULECONFIG_H__

@@ -82,12 +82,19 @@ struct TransportState {
 	std::mutex tokenMutex;
 	std::string token;
 	std::mutex lifecycleMutex;
+	std::mutex authMutex;
+	std::set<uint64_t> authSessions;
 };
 
 TransportState g_state;
 
 std::chrono::steady_clock::time_point Now() {
 	return std::chrono::steady_clock::now();
+}
+
+void ForgetAuthSession(uint64_t id) {
+	std::lock_guard<std::mutex> lock(g_state.authMutex);
+	g_state.authSessions.erase(id);
 }
 
 void SetNonBlocking(int fd) {
@@ -194,6 +201,10 @@ bool HandleAuth(Session& s, const std::string& line) {
 	}
 	s.authenticated = true;
 	s.lastActivity = Now();
+	{
+		std::lock_guard<std::mutex> lock(g_state.authMutex);
+		g_state.authSessions.insert(s.id);
+	}
 	Log_Write(ARP_LOG_INFO, "session %llu authenticated", (unsigned long long)s.id);
 	return SendBytes(s, Protocol_BuildResult(pr.request.rawId, "{\"ok\":true}"));
 }
@@ -286,6 +297,7 @@ void CloseSession(std::map<uint64_t, Session>& sessions,
 	uint64_t id = it->second.id;
 	sessions.erase(it);
 	CLOSE_SOCKET(fd);
+	ForgetAuthSession(id);
 	g_state.clientCount.fetch_sub(1);
 	Log_Write(ARP_LOG_INFO, "session %llu closed", (unsigned long long)id);
 }
@@ -354,6 +366,7 @@ void ProcessCloseRequests(std::map<uint64_t, Session>& sessions) {
 			uint64_t id = it->second.id;
 			it = sessions.erase(it);
 			CLOSE_SOCKET(fd);
+			ForgetAuthSession(id);
 			g_state.clientCount.fetch_sub(1);
 			Log_Write(ARP_LOG_INFO, "session %llu invalidated", (unsigned long long)id);
 		}
@@ -394,6 +407,7 @@ void CheckTimeouts(std::map<uint64_t, Session>& sessions) {
 			uint64_t id = s.id;
 			it = sessions.erase(it);
 			CLOSE_SOCKET(fd);
+			ForgetAuthSession(id);
 			g_state.clientCount.fetch_sub(1);
 			Log_Write(ARP_LOG_INFO, "session %llu timed out", (unsigned long long)id);
 		} else {
@@ -473,6 +487,7 @@ void IoThreadMain() {
 				uint64_t id = s.id;
 				it = sessions.erase(it);
 				CLOSE_SOCKET(fd);
+				ForgetAuthSession(id);
 				g_state.clientCount.fetch_sub(1);
 				Log_Write(ARP_LOG_INFO, "session %llu closed", (unsigned long long)id);
 			} else {
@@ -486,6 +501,10 @@ void IoThreadMain() {
 		CLOSE_SOCKET(kv.second.fd);
 	sessions.clear();
 	g_state.clientCount.store(0);
+	{
+		std::lock_guard<std::mutex> lock(g_state.authMutex);
+		g_state.authSessions.clear();
+	}
 }
 
 bool CreateWakeup() {
@@ -697,6 +716,16 @@ bool Transport_Restart(const Config& cfg) {
 
 int Transport_ClientCount() {
 	return g_state.clientCount.load();
+}
+
+int Transport_AuthenticatedCount() {
+	std::lock_guard<std::mutex> lock(g_state.authMutex);
+	return (int)g_state.authSessions.size();
+}
+
+bool Transport_IsSessionAlive(uint64_t sessionId) {
+	std::lock_guard<std::mutex> lock(g_state.authMutex);
+	return g_state.authSessions.count(sessionId) != 0;
 }
 
 std::string Transport_StatusLine() {

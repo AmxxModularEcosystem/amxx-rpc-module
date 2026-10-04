@@ -1,15 +1,22 @@
 #include "amxxmodule.h"
 
 #include "Config.h"
+#include "CoreMethods.h"
+#include "Events.h"
 #include "Log.h"
+#include "PawnApi.h"
 #include "Protocol.h"
 #include "Queue.h"
 #include "RpcDispatch.h"
 #include "Transport.h"
 
+#include "parson.h"
+
 #include <memory>
 #include <mutex>
 #include <string>
+
+extern globalvars_t* gpGlobals;
 
 namespace {
 
@@ -33,6 +40,8 @@ void Shutdown() {
 	if (!g_initialized)
 		return;
 	Transport_Stop();
+	Pawn_Shutdown();
+	Events_Shutdown();
 	Rpc_Shutdown();
 	Log_Write(ARP_LOG_INFO, "shutdown complete");
 	Log_Shutdown();
@@ -111,6 +120,9 @@ void OnAmxxAttach() {
 	MF_Log("%s v%s loaded.", MODULE_NAME, MODULE_VERSION);
 	Log_Init(BuildPath("amx_logsdir", "addons/amxmodx/logs", "amxxrpc.log"), ARP_LOG_INFO);
 	StartTransport();
+	Core_Init();
+	Pawn_Init();
+	Events_Init();
 	RegisterCommands();
 	g_initialized = true;
 }
@@ -131,4 +143,60 @@ void FN_StartFrame_Post() {
 	int budget = 32;
 	while (budget-- > 0 && Log_PopLine(line))
 		MF_Log("%s", line.c_str());
+}
+
+namespace {
+
+void EmitJson(const char* event, JSON_Value* value) {
+	if (!value)
+		return;
+	char* serialized = json_serialize_to_string(value);
+	Events_Emit(event, serialized ? serialized : "{}");
+	if (serialized)
+		json_free_serialized_string(serialized);
+	json_value_free(value);
+}
+
+} // namespace
+
+BOOL ClientConnect(edict_t* pEntity, const char* pszName, const char* pszAddress,
+                   char szRejectReason[128]) {
+	(void)pEntity;
+	(void)szRejectReason;
+	if (g_initialized) {
+		JSON_Value* obj = json_value_init_object();
+		JSON_Object* o = json_value_get_object(obj);
+		json_object_set_string(o, "name", pszName ? pszName : "");
+		json_object_set_string(o, "address", pszAddress ? pszAddress : "");
+		EmitJson("player_connect", obj);
+	}
+	return TRUE;
+}
+
+void ClientDisconnect(edict_t* pEntity) {
+	if (!g_initialized)
+		return;
+	int index = pEntity ? g_engfuncs.pfnIndexOfEdict(pEntity) : 0;
+	const char* name = index > 0 ? MF_GetPlayerName(index) : nullptr;
+	JSON_Value* obj = json_value_init_object();
+	JSON_Object* o = json_value_get_object(obj);
+	json_object_set_number(o, "index", (double)index);
+	json_object_set_string(o, "name", name ? name : "");
+	EmitJson("player_disconnect", obj);
+}
+
+void ServerActivate(edict_t* pEdictList, int edictCount, int clientMax) {
+	(void)pEdictList;
+	(void)edictCount;
+	(void)clientMax;
+	if (!g_initialized)
+		return;
+	const char* map = gpGlobals ? g_engfuncs.pfnSzFromIndex(gpGlobals->mapname) : nullptr;
+	JSON_Value* obj = json_value_init_object();
+	json_object_set_string(json_value_get_object(obj), "map", map ? map : "");
+	EmitJson("map_start", obj);
+}
+
+void OnPluginsUnloading() {
+	Pawn_OnPluginsUnloading();
 }

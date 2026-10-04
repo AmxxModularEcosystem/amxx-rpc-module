@@ -1,5 +1,11 @@
 # 03. Реестр методов, ядро и Pawn-API
 
+> **Ревизия (Этап 2, `design/12`):** `logs.tail` и раундовые/килл-события **отложены** (v1 —
+> connect/disconnect/map); `server.exec` → `{ok:true}` (захват вывода отложен, `FR-RPC-008`);
+> диспетч Pawn — **per-method SP-forward**; нативы **модуля** регистрируются через `MF_AddNatives`
+> (не Pawn `register_native`; `@ARpc_*` — обработчики плагина); `requestId` — монотонный `uint32`.
+> Актуальные контракты — в `design/12`.
+
 ## 1. Реестр методов
 
 - Реестр — упорядоченная таблица `имя → { source: builtin | pawn, handler, meta }`.

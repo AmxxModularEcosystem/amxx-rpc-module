@@ -21,6 +21,10 @@ add_library(amxxrpc SHARED
   src/Protocol.cpp
   src/Transport.cpp
   src/RpcDispatch.cpp
+  src/RpcRegistry.cpp
+  src/CoreMethods.cpp
+  src/Events.cpp
+  src/PawnApi.cpp
   third_party/parson/parson.c
   third_party/amxx/sdk/amxxmodule.cpp)
 
@@ -62,3 +66,12 @@ add_executable(protocol_test
 target_include_directories(protocol_test PRIVATE src third_party/parson)
 target_compile_definitions(protocol_test PRIVATE HAVE_STDINT_H NOMINMAX)
 target_link_libraries(protocol_test PRIVATE Threads::Threads)
+
+# Off-line registry unit test (no AMXX SDK).
+add_executable(registry_test
+  tests/registry_test.cpp
+  src/RpcRegistry.cpp
+  third_party/parson/parson.c)
+target_include_directories(registry_test PRIVATE src third_party/parson)
+target_compile_definitions(registry_test PRIVATE HAVE_STDINT_H NOMINMAX)
+target_link_libraries(registry_test PRIVATE Threads::Threads)

@@ -44,6 +44,14 @@ void Transport_ApplyToken(const std::string& token);
 bool Transport_Restart(const Config& cfg);
 
 int Transport_ClientCount();
+
+// Number of authenticated sessions (design/12 §7). Safe to call from main.
+int Transport_AuthenticatedCount();
+
+// True when the given session is currently authenticated/alive. Used for lazy
+// pruning of event subscriptions (design/12 §7).
+bool Transport_IsSessionAlive(uint64_t sessionId);
+
 std::string Transport_StatusLine();
 
 #endif // AMXXRPC_TRANSPORT_H
