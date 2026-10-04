@@ -1,0 +1,3 @@
+LIBRARY amxxrpc_amxx
+EXPORTS
+    GiveFnptrsToDll=GiveFnptrsToDll@8

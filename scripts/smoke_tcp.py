@@ -98,9 +98,10 @@ def test_happy_path():
 
     resp = rpc(sock, "rpc.methods", None, 4)
     result = (resp or {}).get("result", {})
-    check("rpc.ping" in result.get("methods", []),
+    names = {m.get("name"): m.get("source") for m in result} if isinstance(result, list) else {}
+    check("rpc.ping" in names,
           "rpc.methods -> includes rpc.ping")
-    check("rpc.auth" in result.get("transport", []),
+    check(names.get("rpc.auth") == "transport",
           "rpc.methods -> rpc.auth shown as transport")
 
     resp = rpc(sock, "rpc.nope", None, 5)

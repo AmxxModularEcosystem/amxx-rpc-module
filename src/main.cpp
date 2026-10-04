@@ -28,11 +28,9 @@ std::mutex g_lifecycleMutex;
 
 std::string BuildPath(const char* localInfoKey, const char* fallback, const char* file) {
 	const char* dir = MF_GetLocalInfo(localInfoKey, fallback);
-	std::string path = dir ? dir : fallback;
-	if (!path.empty() && path.back() != '/' && path.back() != '\\')
-		path += "/";
-	path += file;
-	return path;
+	char buffer[512];
+	MF_BuildPathnameR(buffer, sizeof(buffer), "%s/%s", dir ? dir : fallback, file);
+	return std::string(buffer);
 }
 
 void Shutdown() {
