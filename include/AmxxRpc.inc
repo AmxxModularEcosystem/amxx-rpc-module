@@ -34,7 +34,7 @@
  *
  * Пример: `public stock const PluginVersion[] = ARP_VERSION;`
  */
-#define ARP_VERSION "0.1.0"
+#define ARP_VERSION "0.1.1"
 
 /** Код ошибки: некорректные параметры запроса. */
 #define ARP_ERR_INVALID_PARAMS      -32602

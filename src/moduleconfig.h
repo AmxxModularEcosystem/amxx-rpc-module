@@ -2,7 +2,7 @@
 #define __MODULECONFIG_H__
 
 #define MODULE_NAME "AmxxRpc"
-#define MODULE_VERSION "0.1.0"
+#define MODULE_VERSION "0.1.1"
 #define MODULE_AUTHOR "AmxxRpc"
 #define MODULE_URL "https://example.invalid/amxxrpc"
 #define MODULE_LOGTAG "AmxxRpc"
