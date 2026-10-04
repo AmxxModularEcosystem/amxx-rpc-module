@@ -1,0 +1,14 @@
+AmxxRpc
+=======
+
+This project vendors third-party source code under third_party/.
+See third_party/VERSIONS.md for upstream repositories, pinned commits, and
+licenses, and third_party/patches/ for local patches.
+
+Vendored components:
+  - AMX Mod X public SDK (third_party/amxx) - GNU GPL v3 (third_party/amxx/licenses/)
+  - Metamod (HL1) headers (third_party/metamod) - GNU GPL
+  - Half-Life SDK headers (third_party/hlsdk) - see third_party/hlsdk/LICENSE
+
+The original project code (src/, include/, examples/, cmake/, docs/) is provided
+by the AmxxRpc authors.

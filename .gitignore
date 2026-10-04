@@ -1,0 +1,13 @@
+build/
+build-win/
+build-lin/
+*.amxx
+*.o
+*.so
+*.dll
+*.dylib
+CMakeCache.txt
+CMakeFiles/
+.codegraph/
+.omo/run-continuation/
+.amxb-cache/

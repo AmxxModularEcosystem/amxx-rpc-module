@@ -1,0 +1,17 @@
+AmxxRpc vendored patch: hlsdk/dlls/extdll.h — disable min/max macros on non-Windows
+
+Reason:
+  The non-Windows branch of extdll.h defines `min`/`max` function-like macros.
+  They collide with libstdc++ headers (<algorithm>/<cmath>) pulled in later by
+  amxxmodule.cpp / our sources, producing hard compile errors on Linux (-m32).
+  `NOMINMAX` only affects the Windows branch and does not help here.
+
+Fix:
+  Comment out the `#ifndef min ... #endif` and `#ifndef max ... #endif` blocks
+  (canonical approach used by Next21Team/AmxxEasyHttp's vendored halflife).
+
+Apply (from repo root):
+  patch -p1 < third_party/patches/hlsdk-extdll-minmax.patch
+
+Upstream source: alliedmodders/hlsdk @ a0edb7792a96998d349325bebab8ea41ec5cb239
+File: dlls/extdll.h (around lines 73-78, non-Windows branch)

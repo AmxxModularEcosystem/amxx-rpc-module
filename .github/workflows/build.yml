@@ -1,0 +1,51 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install 32-bit toolchain
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib libc6-dev-i386 cmake
+      - name: Configure
+        run: cmake -S . -B build-lin -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build-lin -j
+      - name: Package artifact
+        run: |
+          mkdir -p dist/addons/amxmodx/modules dist/addons/amxmodx/scripting/include
+          cp build-lin/amxxrpc_amxx_i386.so dist/addons/amxmodx/modules/
+          cp -r include/AmxxRpc dist/addons/amxmodx/scripting/include/
+          (cd dist && zip -r ../amxxrpc-linux.zip .)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: amxxrpc-linux
+          path: amxxrpc-linux.zip
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build-win -A Win32 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build-win --config Release
+      - name: Package artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist/addons/amxmodx/modules, dist/addons/amxmodx/scripting/include | Out-Null
+          Copy-Item build-win/Release/amxxrpc_amxx.dll dist/addons/amxmodx/modules/
+          Copy-Item -Recurse include/AmxxRpc dist/addons/amxmodx/scripting/include/
+          Compress-Archive -Path dist/* -DestinationPath amxxrpc-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: amxxrpc-windows
+          path: amxxrpc-windows.zip
