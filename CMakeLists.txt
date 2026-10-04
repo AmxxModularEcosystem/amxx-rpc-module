@@ -45,7 +45,7 @@ target_include_directories(amxxrpc PRIVATE
   third_party/parson
   third_party/yapb)
 
-target_compile_definitions(amxxrpc PRIVATE HAVE_STDINT_H NOMINMAX)
+target_compile_definitions(amxxrpc PRIVATE HAVE_STDINT_H NOMINMAX NO_MSVC8_AUTO_COMPAT)
 
 if(MSVC)
   set_target_properties(amxxrpc PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded")
