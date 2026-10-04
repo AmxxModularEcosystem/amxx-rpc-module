@@ -24,4 +24,10 @@
 #define FN_AMXX_ATTACH OnAmxxAttach
 #define FN_AMXX_DETACH OnAmxxDetach
 
+// Stage 1: drain the I/O->main queue every frame (design/11 §6).
+#define FN_StartFrame_Post StartFrame_Post
+
+// Stage 1: idempotent shutdown also on Metamod detach (design/11 §6).
+#define FN_META_DETACH OnMetaDetach
+
 #endif // __MODULECONFIG_H__

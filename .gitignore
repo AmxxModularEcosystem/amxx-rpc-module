@@ -11,3 +11,4 @@ CMakeFiles/
 .codegraph/
 .omo/run-continuation/
 .amxb-cache/
+__pycache__/

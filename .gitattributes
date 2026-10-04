@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.sma text eol=lf
+*.inc text eol=lf
+*.cpp text eol=lf
+*.h text eol=lf
+*.c text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.cfg text eol=lf
+*.txt text eol=lf

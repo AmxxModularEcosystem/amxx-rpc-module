@@ -6,14 +6,22 @@ if(NOT WIN32)
   endforeach()
 endif()
 
-project(amxxrpc CXX)
+project(amxxrpc C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(Threads REQUIRED)
+
 add_library(amxxrpc SHARED
   src/main.cpp
+  src/Config.cpp
+  src/Log.cpp
+  src/Protocol.cpp
+  src/Transport.cpp
+  src/RpcDispatch.cpp
+  third_party/parson/parson.c
   third_party/amxx/sdk/amxxmodule.cpp)
 
 target_include_directories(amxxrpc PRIVATE
@@ -25,22 +33,32 @@ target_include_directories(amxxrpc PRIVATE
   third_party/hlsdk/dlls
   third_party/hlsdk/engine
   third_party/hlsdk/game_shared
-  third_party/hlsdk/public)
+  third_party/hlsdk/public
+  third_party/parson)
 
 target_compile_definitions(amxxrpc PRIVATE HAVE_STDINT_H NOMINMAX)
 
 if(MSVC)
   set_target_properties(amxxrpc PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded")
-  target_link_libraries(amxxrpc PRIVATE ws2_32)
+  target_link_libraries(amxxrpc PRIVATE ws2_32 Threads::Threads)
   target_link_options(amxxrpc PRIVATE
     "/EXPORT:GiveFnptrsToDll=_GiveFnptrsToDll@8,@1"
     "/SECTION:.data,RW")
   set_target_properties(amxxrpc PROPERTIES OUTPUT_NAME amxxrpc_amxx)
 else()
   target_compile_options(amxxrpc PRIVATE -ffunction-sections -fdata-sections -fcf-protection=none)
-  target_link_libraries(amxxrpc PRIVATE dl m pthread)
+  target_link_libraries(amxxrpc PRIVATE dl m pthread Threads::Threads)
   target_link_options(amxxrpc PRIVATE -static-libstdc++ -static-libgcc -Wl,--gc-sections)
   set_target_properties(amxxrpc PROPERTIES OUTPUT_NAME amxxrpc_amxx_i386)
 endif()
 
 set_target_properties(amxxrpc PROPERTIES PREFIX "")
+
+# Off-line protocol unit test (no AMXX SDK).
+add_executable(protocol_test
+  tests/protocol_test.cpp
+  src/Protocol.cpp
+  third_party/parson/parson.c)
+target_include_directories(protocol_test PRIVATE src third_party/parson)
+target_compile_definitions(protocol_test PRIVATE HAVE_STDINT_H NOMINMAX)
+target_link_libraries(protocol_test PRIVATE Threads::Threads)

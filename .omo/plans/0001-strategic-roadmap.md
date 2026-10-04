@@ -42,8 +42,8 @@ JSON-RPC-доступ к серверу (команды, состояние, ф�
 | Этап | Дизайн-гейт | Закрывает OQ |
 |---|---|---|
 | 0 Bootstrap | `design/15` | OQ-9, OQ-16 |
-| 1 Транспорт | `design/11`, (`design/16`) | OQ-1, OQ-6, OQ-8, OQ-11, OQ-12, OQ-13, OQ-15, OQ-17 |
-| 2 Реестр/Pawn | `design/12` | OQ-2, OQ-3, OQ-4, OQ-10, OQ-14 |
+| 1 Транспорт | `design/11`, (`design/16`) | OQ-1, OQ-4, OQ-6, OQ-8, OQ-11, OQ-12, OQ-15, OQ-17 |
+| 2 Реестр/Pawn | `design/12` | OQ-2, OQ-3, OQ-10, OQ-13, OQ-14 |
 | 3 Фейк-игроки | `design/13` | OQ-5 |
 | 4 Боты (опц.) | `design/14` | OQ-7 |
 | 5 Hardening | — | — |
